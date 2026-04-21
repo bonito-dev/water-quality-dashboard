@@ -1,35 +1,50 @@
-import os
+import sqlalchemy
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-import streamlit as st
-import psycopg2
 
-# ── Connection — works both locally and on Streamlit Cloud ────────────────────
-def get_connection():
+def get_engine():
     try:
-        # Streamlit Cloud — reads from secrets manager
+        # Streamlit Cloud
         creds = st.secrets["database"]
-        return psycopg2.connect(
-            host=creds["host"],
-            port=creds["port"],
-            dbname=creds["dbname"],
-            user=creds["user"],
-            password=creds["password"],
-            sslmode=creds["sslmode"]
+        url = (
+            f"postgresql+psycopg2://{creds['user']}:{creds['password']}"
+            f"@{creds['host']}:{creds['port']}/{creds['dbname']}"
+            f"?sslmode={creds['sslmode']}"
         )
     except (KeyError, FileNotFoundError):
-        # Local — reads from .env
+        # Local
         from dotenv import load_dotenv
         load_dotenv()
-        return psycopg2.connect(
-            host=os.getenv("DB_HOST"),
-            port=os.getenv("DB_PORT"),
-            dbname=os.getenv("DB_NAME"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            sslmode=os.getenv("DB_SSLMODE", "require")
+        url = (
+            f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
+            f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+            f"?sslmode={os.getenv('DB_SSLMODE', 'require')}"
         )
+    return sqlalchemy.create_engine(url)
+
+@st.cache_data(ttl=3600)
+def load_data():
+    engine = get_engine()
+    df = pd.read_sql("""
+        SELECT f.year, f.value, f.value_rural, f.value_urban, f.is_estimated,
+               i.code AS indicator_code, i.name AS indicator_name,
+               i.category, i.unit, s.name AS source
+        FROM fact_indicator_value f
+        JOIN dim_indicator   i ON f.indicator_id = i.indicator_id
+        JOIN dim_data_source s ON f.source_id    = s.source_id
+        ORDER BY i.code, f.year
+    """, engine)
+    return df
+
+@st.cache_data(ttl=3600)
+def load_thresholds():
+    engine = get_engine()
+    df = pd.read_sql("""
+        SELECT i.code AS indicator_code, t.authority,
+               t.min_value, t.max_value, t.severity, t.notes
+        FROM dim_threshold t
+        JOIN dim_indicator i ON t.indicator_id = i.indicator_id
+    """, engine)
+    return df
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(

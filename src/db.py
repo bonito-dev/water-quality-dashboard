@@ -14,6 +14,13 @@ def get_connection():
         sslmode=os.getenv("DB_SSLMODE", "require")
     )
 
+def get_sqlalchemy_url():
+    return (
+        f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
+        f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+        f"?sslmode={os.getenv('DB_SSLMODE', 'require')}"
+    )
+
 def create_tables():
     conn = get_connection()
     cur = conn.cursor()
