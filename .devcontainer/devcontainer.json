@@ -1,0 +1,4 @@
+{
+  "name": "water-quality-dashboard",
+  "postCreateCommand": "pip install -r requirements.txt"
+}
