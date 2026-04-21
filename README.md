@@ -1,6 +1,6 @@
 # Water Quality Monitoring Dashboard
 
-🌍 **Live dashboard:** https://water-quality-dashboard-bonito-dev.streamlit.app/
+🌍 **Live dashboard:** [Water Quality Dashboard](https://water-quality-dashboard-bonito-dev.streamlit.app/)
 
 A data engineering portfolio project analysing water quality and WASH (Water, Sanitation and Hygiene) trends in Kenya using publicly available data.
 Built by a Data Engineer in Training (ALX) with a background in Industrial Chemistry and Water Quality Laboratory Practice.
