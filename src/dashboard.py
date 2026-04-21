@@ -344,5 +344,5 @@ st.markdown(
     "**Data sources:** WHO/UNICEF JMP · World Bank Open Data  \n"
     "**Thresholds:** WHO Guidelines for Drinking-water Quality · "
     "Kenya Bureau of Standards (KEBS)  \n"
-    "Built By Boniface Kibet Data Engineering Portfolio"
+    "Built By Boniface Kibet, a Data Engineering Portfolio"
 )
