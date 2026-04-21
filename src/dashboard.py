@@ -3,54 +3,10 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-import sqlalchemy
+from dotenv import load_dotenv
+from db import get_connection
 
-def get_engine():
-    try:
-        creds = st.secrets["database"]
-        url = (
-            f"postgresql+psycopg2://{creds['user']}:{creds['password']}"
-            f"@{creds['host']}:{creds['port']}/{creds['dbname']}"
-            f"?sslmode={creds['sslmode']}"
-        )
-        return sqlalchemy.create_engine(url)
-    except Exception:
-        pass
-
-    # Fallback to .env for local development
-    from dotenv import load_dotenv
-    load_dotenv()
-    url = (
-        f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
-        f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-        f"?sslmode={os.getenv('DB_SSLMODE', 'require')}"
-    )
-    return sqlalchemy.create_engine(url)
-
-@st.cache_data(ttl=3600)
-def load_data():
-    engine = get_engine()
-    df = pd.read_sql("""
-        SELECT f.year, f.value, f.value_rural, f.value_urban, f.is_estimated,
-               i.code AS indicator_code, i.name AS indicator_name,
-               i.category, i.unit, s.name AS source
-        FROM fact_indicator_value f
-        JOIN dim_indicator   i ON f.indicator_id = i.indicator_id
-        JOIN dim_data_source s ON f.source_id    = s.source_id
-        ORDER BY i.code, f.year
-    """, engine)
-    return df
-
-@st.cache_data(ttl=3600)
-def load_thresholds():
-    engine = get_engine()
-    df = pd.read_sql("""
-        SELECT i.code AS indicator_code, t.authority,
-               t.min_value, t.max_value, t.severity, t.notes
-        FROM dim_threshold t
-        JOIN dim_indicator i ON t.indicator_id = i.indicator_id
-    """, engine)
-    return df
+load_dotenv()
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -62,7 +18,7 @@ st.set_page_config(
 # ── Data loading ──────────────────────────────────────────────────────────────
 @st.cache_data(ttl=3600)
 def load_data():
-    conn = get_engine()
+    conn = get_connection()
 
     df = pd.read_sql("""
         SELECT
@@ -87,7 +43,7 @@ def load_data():
 
 @st.cache_data(ttl=3600)
 def load_thresholds():
-    conn = get_engine()
+    conn = get_connection()
     df = pd.read_sql("""
         SELECT
             i.code AS indicator_code,
@@ -366,4 +322,5 @@ st.markdown(
     "**Data sources:** WHO/UNICEF JMP · World Bank Open Data  \n"
     "**Thresholds:** WHO Guidelines for Drinking-water Quality · "
     "Kenya Bureau of Standards (KEBS)  \n"
+    "Built By Boniface Kibet Data Engineering Portfolio"
 )
