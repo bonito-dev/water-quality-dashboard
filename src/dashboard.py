@@ -7,22 +7,24 @@ import sqlalchemy
 
 def get_engine():
     try:
-        # Streamlit Cloud
         creds = st.secrets["database"]
         url = (
             f"postgresql+psycopg2://{creds['user']}:{creds['password']}"
             f"@{creds['host']}:{creds['port']}/{creds['dbname']}"
             f"?sslmode={creds['sslmode']}"
         )
-    except (KeyError, FileNotFoundError):
-        # Local
-        from dotenv import load_dotenv
-        load_dotenv()
-        url = (
-            f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
-            f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-            f"?sslmode={os.getenv('DB_SSLMODE', 'require')}"
-        )
+        return sqlalchemy.create_engine(url)
+    except Exception:
+        pass
+
+    # Fallback to .env for local development
+    from dotenv import load_dotenv
+    load_dotenv()
+    url = (
+        f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
+        f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+        f"?sslmode={os.getenv('DB_SSLMODE', 'require')}"
+    )
     return sqlalchemy.create_engine(url)
 
 @st.cache_data(ttl=3600)
