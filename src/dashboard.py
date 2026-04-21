@@ -3,11 +3,33 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from dotenv import load_dotenv
-from db import get_connection
+import psycopg2
 
-load_dotenv()
-
+# ── Connection — works both locally and on Streamlit Cloud ────────────────────
+def get_connection():
+    try:
+        # Streamlit Cloud — reads from secrets manager
+        creds = st.secrets["database"]
+        return psycopg2.connect(
+            host=creds["host"],
+            port=creds["port"],
+            dbname=creds["dbname"],
+            user=creds["user"],
+            password=creds["password"],
+            sslmode=creds["sslmode"]
+        )
+    except (KeyError, FileNotFoundError):
+        # Local — reads from .env
+        from dotenv import load_dotenv
+        load_dotenv()
+        return psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            port=os.getenv("DB_PORT"),
+            dbname=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            sslmode=os.getenv("DB_SSLMODE", "require")
+        )
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Kenya Water Quality Dashboard",
