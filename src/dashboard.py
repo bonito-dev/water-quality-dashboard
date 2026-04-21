@@ -56,7 +56,7 @@ st.set_page_config(
 # ── Data loading ──────────────────────────────────────────────────────────────
 @st.cache_data(ttl=3600)
 def load_data():
-    conn = get_connection()
+    conn = get_engine()
 
     df = pd.read_sql("""
         SELECT
@@ -81,7 +81,7 @@ def load_data():
 
 @st.cache_data(ttl=3600)
 def load_thresholds():
-    conn = get_connection()
+    conn = get_engine()
     df = pd.read_sql("""
         SELECT
             i.code AS indicator_code,
@@ -360,5 +360,4 @@ st.markdown(
     "**Data sources:** WHO/UNICEF JMP · World Bank Open Data  \n"
     "**Thresholds:** WHO Guidelines for Drinking-water Quality · "
     "Kenya Bureau of Standards (KEBS)  \n"
-    "Built as part of ALX Data Engineering Programme"
 )
