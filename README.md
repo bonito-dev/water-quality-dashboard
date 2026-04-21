@@ -1,5 +1,7 @@
 # Water Quality Monitoring Dashboard
 
+🌍 **Live dashboard:** https://water-quality-dashboard-bonito-dev.streamlit.app/
+
 A data engineering portfolio project analysing water quality and WASH (Water, Sanitation and Hygiene) trends in Kenya using publicly available data.
 Built by a Data Engineer in Training (ALX) with a background in Industrial Chemistry and Water Quality Laboratory Practice.
 
@@ -115,10 +117,11 @@ water-quality-dashboard/
 - [x] Dimension tables seeded — geography, indicators, sources, thresholds
 - [x] JMP ingestion script — 651 rows loaded
 - [x] World Bank ingestion script — 49 rows loaded
-- [x] Pipeline audit log — all runs tracked in `pipeline_run` table
+- [x] Pipeline audit log — all runs tracked in pipeline_run table
+- [x] Streamlit dashboard — 4 charts, summary metrics, domain annotations
+- [x] Deployed live on Streamlit Community Cloud
 - [ ] Airflow DAG for orchestration and scheduling
-- [ ] Streamlit dashboard
-- [ ] Deployment
+- [ ] Final README update
 
 ---
 
@@ -159,4 +162,4 @@ python src/ingest_worldbank.py
 ## Author
 
 Industrial Chemistry Graduate | ALX Data Engineering Programme  
-3 months of water quality laboratory experience (water testing and analysis)
+Water quality laboratory experience (water testing and analysis)
